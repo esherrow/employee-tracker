@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../../db/connection');
 
 router.get('/employees', (req,res)=>{
-    const sql = `SELECT*FROM employees LEFT JOIN roles ON employees.role_id = roles.id`;
+    const sql = `SELECT employees.first_name, employees.last_name,  roles.title, roles.salary, departments.name FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id`;
 
     db.query(sql, (err, rows)=>{
         if(err){
