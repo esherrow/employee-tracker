@@ -3,7 +3,7 @@
   ## Description
   This project is a Node based CMS using Inquirer and MySQL.  The purpose is to create an employee database that allows for CRUD functionality on employee records.
   
-  Walkthrough: 
+  Walkthrough: https://drive.google.com/file/d/14gmDD53YHbDquTOoZE0HoqZYwsw5-wyI/view?usp=sharing
     
   * [Installation](#installation)
   * [Usage](#usage)
