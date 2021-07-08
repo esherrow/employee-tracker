@@ -2,16 +2,25 @@
   
   ## Description
   This project is a Node based CMS using Inquirer and MySQL.  The purpose is to create an employee database that allows for CRUD functionality on employee records.
+  
+  Walkthrough: 
     
   * [Installation](#installation)
   * [Usage](#usage)
   * [Licenses](#licenses)
-  * [Tests](#tests)
-  * [Credits](#credits)
-  * [Contributing](#contributing)
-    
+
   # Installation
-  npm install, npm install inquirer, npm install --save mysql2, npm install console.table --save, npm install express
+  * npm install, 
+  * npm install inquirer, 
+  * npm install --save mysql2, 
+  * npm install console.table --save, 
+  * npm install express
+  
+  MySQL database files needed, in order of install:
+  * db.sql
+  * schema.sql
+  * seeds.sql
+  
   
   # Usage
   npm start
