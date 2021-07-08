@@ -36,7 +36,7 @@ function viewAllDept (){
 
     db.query(sql, (err, rows)=>{
         if(err) throw err;
-        console.table(rows);
+        console.table('\n',rows,'\n');
     });    
     userAction();
 };
@@ -75,7 +75,7 @@ function deleteDept(){
             const params = delDept.department
             db.query(sql, params, (err, result)=>{
                 if(err) throw err;
-                console.log(`nDepartment Removed\n`)
+                console.log(`\nDepartment Removed\n`)
             });
             userAction();
         })
@@ -90,7 +90,7 @@ function viewAllRoles(){
             res.status(500).json({error:err.message});
             return;
         }
-        console.table(rows);
+        console.table('\n',rows,'\n');
         });
     userAction();
 };
@@ -125,49 +125,56 @@ function addRoles(){
         })
     })    
 };
-// function updateSalary(){
-//     const sql = `UPDATE roles SET salary = ? WHERE id = ?`;
-//     const params = [req.body.salary, req.params.id];
+function updateSalary(){
+    db.query(`SELECT*FROM roles`, (err, res)=>{
+        if(err) throw err;
+        const roleList= res.map(roles => ({name:roles.title, value:roles.id}));    
+        return inquirer.prompt([
+            {
+                type:'list',
+                name:'role',
+                message:'Which role requires a salary update?',
+                choices: roleList
+            },{
+                type:'number',
+                name:'salary',
+                message:'What is the new salary? Please DO NOT use $.'
+            }
+        ])
+        .then(newSalary=>{
+            const sql = `UPDATE roles SET salary = ? WHERE id = ?`;
+            const params = [newSalary.salary, newSalary.role];
 
-//     db.query(sql, params, (err, result)=>{
-//         if(err){
-//             res.status(400).json({error:err.message});
-//             return;
-//         } else if(!result.affectedRows){
-//             res.json({
-//                 message:'Role not found'
-//             })
-//         }else{
-//             res.json({
-//                 message:'success',
-//                 data:req.body,
-//                 changes: result.affectedRows
-//             })
-//         };
-//     });
-//     userAction();
-// };
-// function deleteRoles(){
-//     const sql = `DELETE FROM roles WHERE id = ?`;
-
-//     db.query(sql, req.params.id, (err, result)=>{
-//         if(err){
-//             res.status(400).json({error:err.message});
-//             return;
-//         } else if(!result.affectedRows){
-//             res.json({
-//                 message:'Role not found'
-//             })
-//         }else{
-//             res.json({
-//                 message:'deleted',
-//                 changes: result.affectedRows,
-//                 id: req.params.id
-//             })
-//         };
-//     });
-//     userAction();
-// };
+            db.query(sql, params, (err, result)=>{
+                if(err) throw err;
+                console.log('Salary updated')
+            });
+            userAction();
+        }) 
+    })
+};
+function deleteRoles(){
+    db.query(`SELECT*FROM roles`, (err, res)=>{
+        if(err) throw err;    
+        const roleList = res.map(roles => ({name:roles.title, value: roles.id}));
+            return inquirer.prompt([
+                {
+                    type:'list',
+                    name:'role',
+                    message:'What role do you wish to remove?',
+                    choices: roleList
+                }
+            ]).then(delRole=>{
+                const sql = `DELETE FROM roles WHERE id = ?`;
+                const params = delRole.role
+                db.query(sql, params, (err, result)=>{
+                    if(err)throw err
+                    console.log(`\nRole Removed\n`)
+                });
+                userAction();
+            })
+    })
+};
 
 function viewAllEmployees(){
     const sql = `SELECT employees.first_name, employees.last_name,  roles.title, roles.salary, departments.name FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id`;
@@ -177,7 +184,7 @@ function viewAllEmployees(){
             res.status(500).json({error:err.message});
             return;
         }
-        console.table(rows);
+        console.table('\n',rows,'\n');
     });
     userAction();    
 };
@@ -221,51 +228,63 @@ function addEmployees(){
         })
     })
 };
-// function updateRoles(){
-//     const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
-//     const params = [req.body.role_id, req.params.id];
+function updateRoles(){
+    db.query(`SELECT*FROM roles`, (err, res)=>{
+        if(err) throw err;
+        const roleList= res.map(roles => ({name:roles.title, value:roles.id}));
+        db.query(`SELECT*FROM employees`, (err, res)=>{
+            if(err) throw err;
+            const employeeList = res.map(employees => ({name: employees.first_name+' '+employees.last_name, value:employees.id}));
+            return inquirer.prompt([
+                {
+                    type:'list',
+                    name:'employee',
+                    message:'Which employee requires role adjustment?',
+                    choices:employeeList
+                },{
+                    type:'list',
+                    name:'role',
+                    message:"What is the employee's new role?",
+                    choices:roleList
+                }
+            ]).then(updateEmploy=>{
+                const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
+                const params = [updateEmploy.role, updateEmploy.employee];
 
-//     db.query(sql, params, (err, result)=>{
-//         if(err){
-//             res.status(400).json({error:err.message});
-//             return;
-//         } else if(!result.affectedRows){
-//             res.json({
-//                 message:'Employee not found'
-//             })
-//         }else{
-//             res.json({
-//                 message:'success',
-//                 data:req.body,
-//                 changes: result.affectedRows
-//             })
-//         };
-//     });
-//     userAction();   
-// };
-// function deleteEmployee(){
-//     const sql = `DELETE FROM employees WHERE id = ?`;
-
-//     db.query(sql, req.params.id, (err, result)=>{
-//         if(err){
-//             res.status(400).json({error:err.message});
-//             return;
-//         } else if(!result.affectedRows){
-//             res.json({
-//                 message:'Employee not found'
-//             })
-//         }else{
-//             res.json({
-//                 message:'deleted',
-//                 changes: result.affectedRows,
-//                 id: req.params.id
-//             })
-//         };
-//     });
-//     userAction();
-// };
+                db.query(sql, params, (err, result)=>{
+                    if(err)throw err
+                    console.log('Employee role updated.');
+                });
+                 userAction();
+            })
+        })
+    });
+};
+function deleteEmployee(){
+    db.query(`SELECT*FROM employees`, (err, res)=>{
+        if (err) throw err;
+        const employeeList = res.map(employees => ({name: employees.first_name+' '+employees.last_name, value:employees.id}));
+        return inquirer.prompt([
+            {
+                type:'list',
+                name:'employee',
+                message:'What employee would you like to remove?',
+                choices: employeeList
+            }
+        ]).then(delEmploy=>{
+            const sql = `DELETE FROM employees WHERE id = ?`;
+            const params =delEmploy.employee
+            db.query(sql, params, (err, result)=>{
+                if(err) throw err;
+                console.log(`\nEmployee Removed\n`)            
+            });
+            userAction();
+        })
+    })
+};
 
 function userAction() {
+    console.log('----------')
     return inquirer.prompt([
         {
         type:'list',
@@ -274,54 +293,46 @@ function userAction() {
         choices:['View All Departments','View All Roles','View All Employees', 
         'Add A Department','Add A Role','Add An Employee',
         'Delete A Department','Delete A Role','Delete An Employee',
-        'Update A Salary','Update An Employee Role']
+        'Update A Salary','Update An Employee Role','Quit']
         }
     ]).then(actions=>{
         switch(actions.options){
             case 'View All Departments':
-                console.log(actions);
                 viewAllDept();
                 break;
             case "View All Roles":
-                console.log(actions);
                 viewAllRoles();
                 break;
             case "View All Employees":
-                console.log(actions);
                 viewAllEmployees();
                 break;
             case "Add A Department":
-                console.log(actions);
                 addDept();
                 break;
             case "Add A Role":
-                console.log(actions);
                 addRoles();
                 break;
             case "Add An Employee":
-                console.log(actions);
                 addEmployees();
                 break;
             case "Delete A Department":
-                console.log(actions);
                 deleteDept();
                 break;
-            // case "Delete A Role":
-            //     console.log(actions);
-            //     deleteRoles();
-            //     break;
-            // case "Delete An Employee":
-            //     console.log(actions);
-            //     deleteEmployee();
-            //     break;
+            case "Delete A Role":
+                deleteRoles();
+                break;
+            case "Delete An Employee":
+                deleteEmployee();
+                break;
             case "Update A Salary":
-                console.log(actions);
                 updateSalary();
                 break;
             case "Update An Employee Role":
-                console.log(actions);
                 updateRoles();
                 break;
+            case "Quit":
+                db.end();
+                return;
         }})
 };
 userAction();
